@@ -34,6 +34,8 @@ export interface ImageAIResult {
   model?: string;
 }
 
+
+
 function ConfidenceBar({ value }: { value: number }) {
   const pct = value > 1 ? Math.round(value) : Math.round(value * 100);
   return (

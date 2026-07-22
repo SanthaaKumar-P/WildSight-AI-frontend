@@ -314,43 +314,18 @@ status:
 
 model:string;
 
+kingdom?: string;
 
-}
+phylum?: string;
 
+className?: string;
 
+order?: string;
 
-/* ================= AUDIO ================= */
+family?: string;
 
+genus?: string;
 
-export interface AudioAIResult {
-
-  audioUrl: string;
-
-  species: string;
-
-  speciesCode?: string;
-
-  scientificName?: string;
-
-  confidence: number;
-
-  category?: string;
-
-  soundType?: string;
-
-  conservationStatus?: string;
-
-  environmentNoise?: string;
-
-  noiseFiltered?: boolean;
-
-  detectedAt: string;
-
-  status:
-  | "recognized"
-  | "no_match";
-
-  model: string;
 
 }
 
@@ -490,6 +465,23 @@ export async function analyzeAudio(
  data.scientificName ||
  undefined,
 
+kingdom:
+data.kingdom,
+
+phylum:
+data.phylum,
+
+className:
+data.className,
+
+order:
+data.order,
+
+family:
+data.family,
+
+genus:
+data.genus,
 
  confidence:
  Number(

@@ -370,7 +370,68 @@ value={result.model}
 
 
 </div>
+<div className="border-t border-border/60 p-5">
 
+<h3 className="mb-3 text-lg font-bold">
+🧬 Taxonomical Classification
+</h3>
+
+
+<div className="grid gap-3 sm:grid-cols-2 text-sm">
+
+
+<div>
+<b>Scientific Name:</b>
+{" "}
+{result.scientificName || "-"}
+</div>
+
+
+<div>
+<b>Kingdom:</b>
+{" "}
+{result.kingdom || "-"}
+</div>
+
+
+<div>
+<b>Phylum:</b>
+{" "}
+{result.phylum || "-"}
+</div>
+
+
+<div>
+<b>Class:</b>
+{" "}
+{result.className || "-"}
+</div>
+
+
+<div>
+<b>Order:</b>
+{" "}
+{result.order || "-"}
+</div>
+
+
+<div>
+<b>Family:</b>
+{" "}
+{result.family || "-"}
+</div>
+
+
+<div>
+<b>Genus:</b>
+{" "}
+{result.genus || "-"}
+</div>
+
+
+</div>
+
+</div>
 
 </div>
 
