@@ -1,142 +1,336 @@
 import { api } from "@/services/api";
 import type { Detection, ImageAIResult } from "@/components/ai/AIResult";
 
+
 /* ================= IMAGE ================= */
 
+
 interface RawDetection {
+
   species: string;
+
   confidence: number;
+
   boundingBox?: number[];
 
   animalId?: string;
+
   existingAnimal?: boolean;
+
   similarity?: number;
 
+
   behavior?: string;
+
   possibleBehaviors?: string[];
 
+
   endangered?: boolean;
+
   speciesStatus?: string;
+
   category?: string;
+
   protectionLevel?: string;
+
+
   scientificName?: string;
-kingdom?: string;
-phylum?: string;
-class?: string;
-order?: string;
-family?: string;
-genus?: string;
+
+  kingdom?: string;
+
+  phylum?: string;
+
+  class?: string;
+
+  order?: string;
+
+  family?: string;
+
+  genus?: string;
+
 }
 
-function normalizeDetections(data: RawDetection[]): Detection[] {
-  return data.map((item) => ({
-    species: item.species,
 
-    confidence: item.confidence,
 
-    bbox: item.boundingBox as
-      | [number, number, number, number]
-      | undefined,
+function normalizeDetections(
+  data: RawDetection[]
+): Detection[] {
 
-    animalId: item.animalId,
 
-    existingAnimal: item.existingAnimal,
+  return data.map((item)=>({
 
-    similarity: item.similarity,
 
-    behavior: item.behavior,
+    species:item.species,
 
-    possibleBehaviors: item.possibleBehaviors,
 
-    endangered: item.endangered,
+    confidence:item.confidence,
 
-    speciesStatus: item.speciesStatus,
 
-    category: item.category,
+    bbox:item.boundingBox as
+    [
+      number,
+      number,
+      number,
+      number
+    ],
 
-    protectionLevel: item.protectionLevel,
 
-    scientificName: item.scientificName,
+    animalId:item.animalId,
 
-kingdom: item.kingdom,
 
-phylum: item.phylum,
+    existingAnimal:item.existingAnimal,
 
-class: item.class,
 
-order: item.order,
+    similarity:item.similarity,
 
-family: item.family,
 
-genus: item.genus,
+    behavior:item.behavior,
+
+
+    possibleBehaviors:item.possibleBehaviors,
+
+
+    endangered:item.endangered,
+
+
+    speciesStatus:item.speciesStatus,
+
+
+    category:item.category,
+
+
+    protectionLevel:item.protectionLevel,
+
+
+    scientificName:item.scientificName,
+
+
+    kingdom:item.kingdom,
+
+
+    phylum:item.phylum,
+
+
+    class:item.class,
+
+
+    order:item.order,
+
+
+    family:item.family,
+
+
+    genus:item.genus
+
+
   }));
+
 }
+
+
+
 
 export async function analyzeImage(
-  file: File,
-  originalUrl: string
-): Promise<ImageAIResult> {
-  const formData = new FormData();
 
-  formData.append("file", file);
+file:File,
 
-  // Temporary observation id
-  formData.append("observationId", "1");
+originalUrl:string
 
-  const storedUser = localStorage.getItem("wildsight_user");
+):Promise<ImageAIResult>{
 
-  let uploadedBy = "1";
 
-  if (storedUser) {
-    const user = JSON.parse(storedUser);
+const formData=new FormData();
 
-    uploadedBy = String(user.userId ?? user.id ?? 1);
-  }
 
-  formData.append("uploadedBy", uploadedBy);
+formData.append(
+"file",
+file
+);
 
-  formData.append(
-    "capturedAt",
-    new Date().toISOString()
-  );
 
-  formData.append("imageQuality", "90");
+formData.append(
+"observationId",
+"1"
+);
 
-  const start = performance.now();
 
-  const { data } = await api.post(
-    "/api/uploaded-images/upload",
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  );
 
-  return {
-    originalUrl,
+const storedUser =
+localStorage.getItem(
+"wildsight_user"
+);
 
-    annotatedUrl: data.annotatedImage,
 
-    detections: normalizeDetections(
-      data.detections || []
-    ),
 
-    processingTimeMs: Math.round(
-      performance.now() - start
-    ),
+let uploadedBy="1";
 
-    model: data.model || "YOLO + MobileNetV2",
-  };
+
+
+if(storedUser){
+
+const user=JSON.parse(
+storedUser
+);
+
+
+uploadedBy =
+String(
+user.userId ??
+user.id ??
+1
+);
+
 }
+
+
+
+formData.append(
+"uploadedBy",
+uploadedBy
+);
+
+
+
+formData.append(
+"capturedAt",
+new Date().toISOString()
+);
+
+
+
+formData.append(
+"imageQuality",
+"90"
+);
+
+
+
+const start =
+performance.now();
+
+
+
+const {data}=await api.post(
+
+"/api/uploaded-images/upload",
+
+formData,
+
+{
+
+headers:{
+
+"Content-Type":
+"multipart/form-data"
+
+}
+
+}
+
+);
+
+
+
+return {
+
+
+originalUrl,
+
+
+annotatedUrl:
+data.annotatedImage,
+
+
+detections:
+normalizeDetections(
+data.detections || []
+),
+
+
+processingTimeMs:
+
+Math.round(
+performance.now()-start
+),
+
+
+model:
+
+data.model ||
+"YOLO + MobileNetV2"
+
+};
+
+
+}
+
+
+
 
 /* ================= AUDIO ================= */
 
+
+
 export interface AudioAIResult {
+
+
+audioUrl:string;
+
+
+species:string;
+
+
+speciesCode?:string;
+
+
+scientificName?:string;
+
+
+confidence:number;
+
+
+category?:string;
+
+
+soundType?:string;
+
+
+conservationStatus?:string;
+
+
+environmentNoise?:string;
+
+
+noiseFiltered?:boolean;
+
+
+detectedAt:string;
+
+
+status:
+"recognized" |
+"no_match";
+
+
+model:string;
+
+
+}
+
+
+
+/* ================= AUDIO ================= */
+
+
+export interface AudioAIResult {
+
   audioUrl: string;
 
   species: string;
+
+  speciesCode?: string;
+
+  scientificName?: string;
 
   confidence: number;
 
@@ -152,58 +346,209 @@ export interface AudioAIResult {
 
   detectedAt: string;
 
-  status: "recognized" | "no_match";
+  status:
+  | "recognized"
+  | "no_match";
 
   model: string;
+
 }
 
+
+
 export async function analyzeAudio(
+
   file: File,
+
   audioUrl: string
+
 ): Promise<AudioAIResult> {
+
+
   const formData = new FormData();
 
-  formData.append("file", file);
 
-  const { data } = await api.post(
-    "/api/uploaded-audio/upload",
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
+  // audio file
+  formData.append(
+    "file",
+    file
   );
 
-  return {
-    audioUrl,
 
-    species:
-      data.species ||
-      data.predictedSpecies ||
-      "Unknown",
 
-    confidence: data.confidence || 0,
+  // observation id
+  formData.append(
+    "observationId",
+    "1"
+  );
 
-    category: data.category,
 
-    soundType: data.soundType,
 
-    conservationStatus:
-      data.conservationStatus,
+  // get logged-in user
+  const storedUser =
+    localStorage.getItem(
+      "wildsight_user"
+    );
 
-    environmentNoise:
-      data.environmentNoise,
 
-    noiseFiltered:
-      data.noiseFiltered,
 
-    detectedAt:
-      new Date().toISOString(),
+  let uploadedBy = "1";
 
-    status: "recognized",
 
-    model:
-      data.model || "BirdNET + CNN",
-  };
+
+  if (storedUser) {
+
+
+    try {
+
+      const user =
+        JSON.parse(storedUser);
+
+
+      uploadedBy =
+        String(
+          user.userId ??
+          user.id ??
+          1
+        );
+
+
+    } catch {
+
+      uploadedBy = "1";
+
+    }
+
+  }
+
+
+
+  formData.append(
+    "uploadedBy",
+    uploadedBy
+  );
+
+
+
+  formData.append(
+    "capturedAt",
+    new Date().toISOString()
+  );
+
+
+
+  formData.append(
+    "durationSeconds",
+    "10"
+  );
+
+
+
+  try {
+
+
+    const { data } = await api.post(
+
+      "/api/uploaded-audio/upload",
+
+      formData,
+
+      {
+
+        headers: {
+
+          "Content-Type":
+          "multipart/form-data"
+
+        }
+
+      }
+
+    );
+
+
+
+    return {
+
+ audioUrl,
+
+
+ species:
+ data.species ||
+ data.predictedSpecies ||
+ data.commonName ||
+ "Unknown",
+
+
+ speciesCode:
+ data.speciesCode ||
+ data.code ||
+ undefined,
+
+
+ scientificName:
+ data.scientificName ||
+ undefined,
+
+
+ confidence:
+ Number(
+ data.confidence ??
+ data.score ??
+ 0
+ ),
+
+
+ category:
+ data.category ||
+ "Bird",
+
+
+ soundType:
+ data.soundType ||
+ "Bird Call",
+
+
+ conservationStatus:
+ data.conservationStatus ||
+ "Unknown",
+
+
+ environmentNoise:
+ data.environmentNoise ||
+ "Unknown",
+
+
+ noiseFiltered:
+ data.noiseFiltered ??
+ false,
+
+
+ detectedAt:
+ new Date().toISOString(),
+
+
+ status:
+ data.status === "FAILED"
+ ? "no_match"
+ : "recognized",
+
+
+ model:
+ data.model ||
+ "BirdNET Analyzer"
+
+};
+
+  } catch (error) {
+
+    console.error(
+      "Error analyzing audio:",
+      error
+    );
+
+    throw error;
+
+  }
+
 }

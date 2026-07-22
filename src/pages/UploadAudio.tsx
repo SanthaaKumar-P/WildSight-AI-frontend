@@ -65,36 +65,61 @@ export default function UploadAudio() {
   };
 
   const analyze = async () => {
-    if (!file) return;
-    setPhase("uploading");
-    setProgress(0);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      try {
-        await api.post("/api/uploaded-audio", fd, {
-          headers: { "Content-Type": "multipart/form-data" },
-          onUploadProgress: (e) => {
-            const pct = e.total ? Math.round((e.loaded * 100) / e.total) : 0;
-            setProgress(pct);
-          },
-        });
-      } catch {
-        // non-fatal
+
+  if (!file) return;
+
+  setPhase("uploading");
+  setProgress(0);
+
+  try {
+
+    // Directly call AI + upload API
+    setProgress(40);
+
+    setPhase("analyzing");
+
+
+    const r = await analyzeAudio(
+      file,
+      audioUrl
+    );
+
+
+    setProgress(100);
+
+    setResult(r);
+
+    setPhase("done");
+
+
+    toast.success(
+      `Detected: ${r.species}`,
+      {
+        description:
+          `${Math.round(r.confidence * 100)}% confidence`
       }
-      setPhase("analyzing");
-      const r = await analyzeAudio(file, audioUrl);
-      setResult(r);
-      setPhase("done");
-      toast.success(`Detected: ${r.species}`, {
-        description: `${Math.round(r.confidence * 100)}% confidence`,
-      });
-    } catch (e) {
-      console.error(e);
-      setPhase("error");
-      toast.error("Audio analysis failed");
-    }
-  };
+    );
+
+
+  } catch(error) {
+
+
+    console.error(
+      "Audio upload error:",
+      error
+    );
+
+
+    setPhase("error");
+
+
+    toast.error(
+      "Audio analysis failed"
+    );
+
+  }
+
+};
 
   const onDrop = (e: DragEvent) => {
     e.preventDefault();
@@ -208,55 +233,170 @@ export default function UploadAudio() {
         )}
 
         {phase === "done" && result && (
-          <motion.div
-            key="done"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            className="mt-2 space-y-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 220, damping: 18 }}
-              className="glass overflow-hidden rounded-3xl shadow-soft"
-            >
-              <div className="gradient-primary p-5 text-primary-foreground">
-                <div className="flex items-center gap-3">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.1, type: "spring" }}
-                    className="grid h-12 w-12 place-items-center rounded-2xl bg-white/20 backdrop-blur"
-                  >
-                    <CheckCircle2 className="h-7 w-7" />
-                  </motion.div>
-                  <div>
-                    <div className="text-xs font-semibold uppercase tracking-wide opacity-80">
-                      BirdNET recognition
-                    </div>
-                    <div className="font-display text-2xl font-bold">{result.species}</div>
-                    {result.scientificName && (
-                      <div className="text-sm italic opacity-90">{result.scientificName}</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
-                <Stat label="Confidence" value={`${Math.round(result.confidence * 100)}%`} />
-                <Stat
-                  label="Duration"
-                  value={result.durationSec ? `${result.durationSec.toFixed(1)}s` : "—"}
-                />
-                <Stat label="Model" value={result.model} />
-                <Stat label="Status" value={result.status === "recognized" ? "Recognized" : "No match"} />
-              </div>
-              <div className="border-t border-border/60 p-5">
-                <audio controls src={result.audioUrl} className="w-full" />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
+
+<motion.div
+key="done"
+initial={{opacity:0,scale:0.98}}
+animate={{opacity:1,scale:1}}
+className="mt-2 space-y-4"
+>
+
+
+<div className="glass overflow-hidden rounded-3xl shadow-soft">
+
+
+<div className="gradient-primary p-5 text-primary-foreground">
+
+
+<div className="flex items-center gap-3">
+
+
+<div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/20">
+
+<CheckCircle2 className="h-7 w-7"/>
+
+</div>
+
+
+
+<div>
+
+
+<div className="text-xs uppercase opacity-80">
+BirdNET Recognition
+</div>
+
+
+<div className="text-2xl font-bold">
+{result.species}
+</div>
+
+
+{result.scientificName && (
+
+<div className="italic text-sm">
+{result.scientificName}
+</div>
+
+)}
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
+
+
+<Stat
+label="Confidence"
+value={`${Math.round(result.confidence)}%`}
+/>
+
+
+<Stat
+label="Category"
+value={result.category || "Bird"}
+/>
+
+
+<Stat
+label="Sound Type"
+value={result.soundType || "-"}
+/>
+
+
+<Stat
+label="Model"
+value={result.model}
+/>
+
+
+</div>
+
+
+
+
+<div className="border-t border-border/60 p-5">
+
+
+<h3 className="mb-3 text-lg font-bold">
+
+🐦 Bioacoustic Classification
+
+</h3>
+
+
+
+<div className="grid gap-3 sm:grid-cols-2 text-sm">
+
+
+<div>
+<b>Species Code:</b>
+{" "}
+{result.speciesCode || "-"}
+</div>
+
+
+
+<div>
+<b>Conservation:</b>
+{" "}
+{result.conservationStatus || "-"}
+</div>
+
+
+
+<div>
+<b>Environment Noise:</b>
+{" "}
+{result.environmentNoise || "-"}
+</div>
+
+
+
+<div>
+<b>Noise Filtered:</b>
+{" "}
+{result.noiseFiltered ? "✅ Yes":"❌ No"}
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+<div className="border-t border-border/60 p-5">
+
+
+<audio
+controls
+src={result.audioUrl}
+className="w-full"
+/>
+
+
+</div>
+
+
+
+</div>
+
+
+</motion.div>
+
+)}
 
         {phase === "error" && (
           <motion.div
