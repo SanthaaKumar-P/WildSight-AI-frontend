@@ -1,64 +1,193 @@
-import { useEffect, useState } from "react";
-import { PageHeader } from "@/components/PageHeader";
-import { api } from "@/services/api";
-import { EmptyState } from "@/components/EmptyState";
-import { TableSkeleton } from "@/components/Skeletons";
-import { Download, FileText, Clock, CheckCircle2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
-interface Item { id: number; reportId?: number; format?: string; status?: string; createdAt?: string; url?: string; downloadUrl?: string; }
+import { getAllReportExports } from "../services/reportExportService";
+
+import ExportCard from "../components/reportExport/ExportCard";
+import AnalyticsCard from "../components/analytics/AnalyticsCard";
+
+import {
+  Download,
+  FileText,
+  FileSpreadsheet,
+  FileArchive,
+  Search,
+} from "lucide-react";
 
 export default function ReportExports() {
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [exports, setExports] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
+  const [format, setFormat] = useState("ALL");
+
   useEffect(() => {
-    api.get("/api/report-exports").then((r) => {
-      setItems(Array.isArray(r.data) ? r.data : r.data?.content || []);
-    }).catch(() => setItems([])).finally(() => setLoading(false));
+    loadExports();
   }, []);
 
+  const loadExports = () => {
+    getAllReportExports()
+      .then(setExports)
+      .catch((err) => console.error(err));
+  };
+
+  const totalExports = exports.length;
+
+  const pdfExports = exports.filter(
+    (e) => e.exportFormat === "PDF"
+  ).length;
+
+  const excelExports = exports.filter(
+    (e) => e.exportFormat === "EXCEL"
+  ).length;
+
+  const csvExports = exports.filter(
+    (e) => e.exportFormat === "CSV"
+  ).length;
+
+  const filteredExports = useMemo(() => {
+    return exports.filter((exp) => {
+      const searchMatch = exp.reportTitle
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+      const formatMatch =
+        format === "ALL" || exp.exportFormat === format;
+
+      return searchMatch && formatMatch;
+    });
+  }, [exports, search, format]);
+
   return (
-    <div>
-      <PageHeader title="Report Exports" subtitle="Download generated report files (PDF, XLSX, CSV)" />
-      {loading ? <TableSkeleton /> : items.length === 0 ? (
-        <EmptyState title="No exports yet" description="Trigger a report export to see it listed here." icon={<Download className="h-6 w-6" />} />
-      ) : (
-        <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft">
-          <table className="min-w-full text-sm">
-            <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 text-left">ID</th>
-                <th className="px-4 py-3 text-left">Report</th>
-                <th className="px-4 py-3 text-left">Format</th>
-                <th className="px-4 py-3 text-left">Status</th>
-                <th className="px-4 py-3 text-left">Created</th>
-                <th className="px-4 py-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((i) => (
-                <tr key={i.id} className="border-t border-border/60 hover:bg-muted/40">
-                  <td className="px-4 py-3 font-mono text-xs">{i.id}</td>
-                  <td className="px-4 py-3">Report #{i.reportId ?? "—"}</td>
-                  <td className="px-4 py-3"><span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">{i.format || "PDF"}</span></td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-1 text-xs">
-                      {i.status === "COMPLETED" || i.status === "READY"
-                        ? <><CheckCircle2 className="h-3.5 w-3.5 text-success" /> Ready</>
-                        : <><Clock className="h-3.5 w-3.5 text-warning" /> {i.status || "Processing"}</>}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{i.createdAt ? new Date(i.createdAt).toLocaleString() : "—"}</td>
-                  <td className="px-4 py-3 text-right">
-                    <a href={i.downloadUrl || i.url || "#"} className="inline-flex items-center gap-1 rounded-lg gradient-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:shadow-glow">
-                      <Download className="h-3.5 w-3.5" /> Download
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="p-8 space-y-8 bg-[#f7faf7] min-h-screen">
+
+      {/* HEADER */}
+
+      <div className="flex justify-between items-center">
+
+        <div>
+          <h1 className="text-4xl font-bold">
+            Report Exports 📥
+          </h1>
+
+          <p className="text-gray-500 mt-2">
+            Export generated wildlife reports
+          </p>
         </div>
-      )}
+
+        <button className="bg-green-600 hover:bg-green-700 text-white rounded-xl px-5 py-3 flex items-center gap-2 shadow">
+          <Download size={18} />
+          Export Center
+        </button>
+
+      </div>
+
+      {/* KPI CARDS */}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+        <AnalyticsCard
+          title="Total Exports"
+          value={totalExports}
+          icon={<Download size={24} />}
+          color="bg-green-600"
+        />
+
+        <AnalyticsCard
+          title="PDF Files"
+          value={pdfExports}
+          icon={<FileText size={24} />}
+          color="bg-red-500"
+        />
+
+        <AnalyticsCard
+          title="Excel Files"
+          value={excelExports}
+          icon={<FileSpreadsheet size={24} />}
+          color="bg-green-500"
+        />
+
+        <AnalyticsCard
+          title="CSV Files"
+          value={csvExports}
+          icon={<FileArchive size={24} />}
+          color="bg-blue-600"
+        />
+
+      </div>
+
+      {/* SEARCH + FILTER */}
+
+      <div className="flex flex-col md:flex-row gap-4 justify-between">
+
+        <div className="relative w-full md:w-96">
+
+          <Search
+            size={18}
+            className="absolute left-3 top-3 text-gray-400"
+          />
+
+          <input
+            type="text"
+            placeholder="Search report..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-xl border pl-10 pr-4 py-3 shadow-sm"
+          />
+
+        </div>
+
+        <select
+          value={format}
+          onChange={(e) => setFormat(e.target.value)}
+          className="rounded-xl border px-4 py-3 shadow-sm"
+        >
+          <option value="ALL">All Formats</option>
+          <option value="PDF">PDF</option>
+          <option value="EXCEL">EXCEL</option>
+          <option value="CSV">CSV</option>
+        </select>
+
+      </div>
+
+      {/* EXPORT LIST */}
+
+      <div className="grid gap-5">
+
+        {filteredExports.length > 0 ? (
+
+          filteredExports.map((exp) => (
+
+            <ExportCard
+              key={exp.exportId}
+              title={exp.reportTitle}
+              format={exp.exportFormat}
+              exportedAt={exp.exportedAt}
+              path={exp.exportPath}
+            />
+
+          ))
+
+        ) : (
+
+          <div className="bg-white rounded-2xl shadow p-12 text-center">
+
+            <Download
+              size={50}
+              className="mx-auto text-gray-400 mb-4"
+            />
+
+            <h2 className="text-2xl font-bold">
+              No Report Exports Found
+            </h2>
+
+            <p className="text-gray-500 mt-2">
+              Try changing your search or export filter.
+            </p>
+
+          </div>
+
+        )}
+
+      </div>
+
     </div>
   );
 }

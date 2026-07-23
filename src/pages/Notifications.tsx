@@ -1,78 +1,276 @@
-import { useEffect, useState } from "react";
-import { PageHeader } from "@/components/PageHeader";
-import { api } from "@/services/api";
-import { EmptyState } from "@/components/EmptyState";
-import { TableSkeleton } from "@/components/Skeletons";
-import { Bell, CheckCheck } from "lucide-react";
-import { motion } from "framer-motion";
-import { toast } from "sonner";
+import { useEffect, useMemo, useState } from "react";
 
-interface N { id: number; title?: string; message?: string; body?: string; read?: boolean; isRead?: boolean; createdAt?: string; type?: string; }
+import {
+  getAllNotifications,
+  deleteNotification,
+} from "../services/notificationService";
 
-const tint: Record<string, string> = {
-  ALERT: "bg-destructive/10 text-destructive",
-  WARNING: "bg-warning/15 text-warning",
-  INFO: "bg-primary/10 text-primary",
-  SUCCESS: "bg-success/10 text-success",
-};
+import NotificationCard from "../components/notifications/NotificationCard";
+import AnalyticsCard from "../components/analytics/AnalyticsCard";
+
+import {
+  Bell,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Search,
+} from "lucide-react";
 
 export default function Notifications() {
-  const [list, setList] = useState<N[]>([]);
-  const [loading, setLoading] = useState(true);
-  const load = () => {
-    setLoading(true);
-    api.get("/api/notifications").then((r) => {
-      setList(Array.isArray(r.data) ? r.data : r.data?.content || []);
-    }).catch(() => setList([])).finally(() => setLoading(false));
-  };
-  useEffect(load, []);
 
-  const markAll = async () => {
-    try {
-      await Promise.all(list.filter((n) => !(n.read || n.isRead)).map((n) => api.put(`/api/notifications/${n.id}`, { ...n, read: true, isRead: true })));
-      toast.success("All notifications marked as read");
-      load();
-    } catch { toast.error("Failed to update"); }
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("ALL");
+
+  useEffect(() => {
+    loadNotifications();
+  }, []);
+
+  const loadNotifications = () => {
+    getAllNotifications()
+      .then(setNotifications)
+      .catch(console.error);
   };
 
-  const unread = list.filter((n) => !(n.read || n.isRead)).length;
+  const handleDelete = async (id: number) => {
+
+    if (!window.confirm("Delete this notification?"))
+      return;
+
+    await deleteNotification(id);
+
+    loadNotifications();
+
+  };
+
+  const total = notifications.length;
+
+  const unread = notifications.filter(
+    n => !n.isRead
+  ).length;
+
+  const alerts = notifications.filter(
+    n =>
+      n.notificationType === "ALERT" ||
+      n.notificationType === "WARNING"
+  ).length;
+
+  const today = notifications.filter(n => {
+
+    const d = new Date(n.createdAt);
+
+    const now = new Date();
+
+    return (
+      d.getDate() === now.getDate() &&
+      d.getMonth() === now.getMonth() &&
+      d.getFullYear() === now.getFullYear()
+    );
+
+  }).length;
+
+  const filteredNotifications = useMemo(() => {
+
+    return notifications.filter(n => {
+
+      const searchMatch =
+        n.title.toLowerCase().includes(search.toLowerCase()) ||
+        n.message.toLowerCase().includes(search.toLowerCase());
+
+      const filterMatch =
+        filter === "ALL" ||
+        n.notificationType === filter;
+
+      return searchMatch && filterMatch;
+
+    });
+
+  }, [notifications, search, filter]);
 
   return (
-    <div>
-      <PageHeader
-        title="Notifications"
-        subtitle={unread ? `${unread} unread` : "You're all caught up"}
-        actions={unread > 0 && (
-          <button onClick={markAll} className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-sm hover:bg-muted">
-            <CheckCheck className="h-4 w-4" /> Mark all as read
-          </button>
-        )}
-      />
-      {loading ? <TableSkeleton rows={5} cols={2} /> : list.length === 0 ? (
-        <EmptyState title="No notifications" icon={<Bell className="h-6 w-6" />} description="System messages and alerts will show up here." />
-      ) : (
-        <div className="space-y-3">
-          {list.map((n, i) => {
-            const isUnread = !(n.read || n.isRead);
-            return (
-              <motion.div key={n.id} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}
-                className={`glass flex items-start gap-3 rounded-2xl p-4 shadow-soft transition hover:-translate-y-0.5 ${isUnread ? "border-l-4 border-l-primary" : ""}`}>
-                <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${tint[String(n.type || "INFO").toUpperCase()] || "bg-primary/10 text-primary"}`}>
-                  <Bell className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h4 className="truncate font-semibold">{n.title || "Notification"}</h4>
-                    {isUnread && <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">NEW</span>}
-                  </div>
-                  <p className="text-sm text-muted-foreground">{n.message || n.body || ""}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{n.createdAt ? new Date(n.createdAt).toLocaleString() : ""}</p>
-                </div>
-              </motion.div>
-            );
-          })}
+
+    <div className="p-8 space-y-8 bg-[#f7faf7] min-h-screen">
+
+      {/* HEADER */}
+
+      <div className="flex justify-between items-center">
+
+        <div>
+
+          <h1 className="text-4xl font-bold">
+            Notifications 🔔
+          </h1>
+
+          <p className="text-gray-500 mt-2">
+            Stay updated with wildlife events and system alerts
+          </p>
+
         </div>
-      )}
+
+      </div>
+
+      {/* KPI */}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+        <AnalyticsCard
+          title="Total"
+          value={total}
+          icon={<Bell size={24} />}
+          color="bg-green-600"
+        />
+
+        <AnalyticsCard
+          title="Unread"
+          value={unread}
+          icon={<Clock size={24} />}
+          color="bg-blue-600"
+        />
+
+        <AnalyticsCard
+          title="Alerts"
+          value={alerts}
+          icon={<AlertTriangle size={24} />}
+          color="bg-red-600"
+        />
+
+        <AnalyticsCard
+          title="Today's"
+          value={today}
+          icon={<CheckCircle size={24} />}
+          color="bg-purple-600"
+        />
+
+      </div>
+
+      {/* SEARCH */}
+
+      <div className="flex flex-col md:flex-row justify-between gap-4">
+
+        <div className="relative w-full md:w-96">
+
+          <Search
+            size={18}
+            className="absolute left-3 top-4 text-gray-400"
+          />
+
+          <input
+
+            value={search}
+
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+
+            placeholder="Search notification..."
+
+            className="
+            w-full
+            border
+            rounded-xl
+            py-3
+            pl-10
+            pr-4
+            shadow-sm
+            "
+
+          />
+
+        </div>
+
+        <select
+
+          value={filter}
+
+          onChange={(e) =>
+            setFilter(e.target.value)
+          }
+
+          className="
+          border
+          rounded-xl
+          px-4
+          py-3
+          shadow-sm
+          "
+
+        >
+
+          <option value="ALL">All</option>
+
+          <option value="SURVEY">
+            Survey
+          </option>
+
+          <option value="WARNING">
+            Warning
+          </option>
+
+          <option value="ALERT">
+            Alert
+          </option>
+
+        </select>
+
+      </div>
+
+      {/* LIST */}
+
+      <div className="space-y-5">
+
+        {
+
+          filteredNotifications.length > 0 ?
+
+            filteredNotifications.map(n => (
+
+              <NotificationCard
+
+                key={n.notificationId}
+
+                notification={n}
+
+                onDelete={handleDelete}
+
+              />
+
+            ))
+
+            :
+
+            <div className="
+            bg-white
+            rounded-2xl
+            shadow
+            p-12
+            text-center
+            ">
+
+              <Bell
+                size={60}
+                className="mx-auto text-gray-400"
+              />
+
+              <h2 className="text-2xl font-bold mt-4">
+
+                No Notifications
+
+              </h2>
+
+              <p className="text-gray-500 mt-2">
+
+                Everything looks good 🎉
+
+              </p>
+
+            </div>
+
+        }
+
+      </div>
+
     </div>
+
   );
+
 }
