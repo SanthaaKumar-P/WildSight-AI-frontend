@@ -1,81 +1,501 @@
 import { useEffect, useState } from "react";
-import { PageHeader } from "@/components/PageHeader";
-import { api } from "@/services/api";
-import { EmptyState } from "@/components/EmptyState";
-import { TableSkeleton } from "@/components/Skeletons";
-import { FileText, Download, Eye, Calendar, Plus } from "lucide-react";
-import { motion } from "framer-motion";
-import { toast } from "sonner";
 
-interface Report { id: number; title?: string; name?: string; type?: string; status?: string; createdAt?: string; }
+import {
+    FileText,
+    Download,
+    Calendar,
+    User,
+    Trash2,
+    CheckCircle,
+    Clock
+} from "lucide-react";
 
-const badge: Record<string, string> = {
-  DRAFT: "bg-muted text-muted-foreground",
-  PENDING: "bg-warning/15 text-warning",
-  APPROVED: "bg-success/10 text-success",
-  PUBLISHED: "bg-primary/10 text-primary",
-  ARCHIVED: "bg-muted text-muted-foreground",
+import {
+    getReports,
+    deleteReport
+} from "../services/reportService";
+
+
+
+function Reports(){
+
+
+const [reports,setReports]=useState<any[]>([]);
+
+
+
+useEffect(()=>{
+
+loadReports();
+
+},[]);
+
+
+
+const loadReports=async()=>{
+
+try{
+
+const data=await getReports();
+
+setReports(data);
+
+}
+
+catch(error){
+
+console.log(error);
+
+}
+
 };
 
-export default function Reports() {
-  const [reports, setReports] = useState<Report[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    api.get("/api/reports").then((r) => {
-      setReports(Array.isArray(r.data) ? r.data : r.data?.content || []);
-    }).catch(() => setReports([])).finally(() => setLoading(false));
-  }, []);
 
-  const exportReport = async (id: number) => {
-    try {
-      await api.post(`/api/report-exports`, { reportId: id, format: "PDF" });
-      toast.success("Export queued");
-    } catch { toast.error("Failed to queue export"); }
-  };
 
-  return (
-    <div>
-      <PageHeader
-        title="Reports"
-        subtitle="Generated biodiversity and monitoring reports"
-        actions={
-          <button className="inline-flex items-center gap-2 rounded-xl gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-glow">
-            <Plus className="h-4 w-4" /> New report
-          </button>
-        }
-      />
+const removeReport=async(id:number)=>{
 
-      {loading ? <TableSkeleton rows={4} cols={4} /> : reports.length === 0 ? (
-        <EmptyState title="No reports yet" description="Generated reports will appear here." icon={<FileText className="h-6 w-6" />} />
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {reports.map((r, i) => (
-            <motion.div key={r.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-              className="glass group rounded-2xl p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-elegant">
-              <div className="flex items-start justify-between">
-                <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary"><FileText className="h-5 w-5" /></div>
-                <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${badge[String(r.status || "DRAFT").toUpperCase()] || "bg-muted text-muted-foreground"}`}>
-                  {r.status || "Draft"}
-                </span>
-              </div>
-              <h3 className="mt-4 font-display text-lg font-semibold">{r.title || r.name || `Report #${r.id}`}</h3>
-              <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{r.type || "Biodiversity monitoring"}</p>
-              <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
-                <Calendar className="h-3 w-3" /> {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "Recent"}
-              </div>
-              <div className="mt-4 flex gap-2">
-                <button className="flex-1 rounded-lg border border-border bg-background px-3 py-1.5 text-xs hover:bg-muted">
-                  <Eye className="mr-1 inline h-3.5 w-3.5" /> View
-                </button>
-                <button onClick={() => exportReport(r.id)} className="flex-1 rounded-lg gradient-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:shadow-glow">
-                  <Download className="mr-1 inline h-3.5 w-3.5" /> Export
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+await deleteReport(id);
+
+loadReports();
+
+};
+
+
+
+
+return (
+
+<div className="
+p-8
+space-y-10
+bg-[#f7faf7]
+min-h-screen
+">
+
+
+
+{/* HEADER */}
+
+
+<div className="
+flex
+justify-between
+items-center
+">
+
+
+<div>
+
+<h1 className="
+text-4xl
+font-bold
+text-gray-900
+">
+
+Wildlife Reports 📄
+
+</h1>
+
+
+<p className="
+text-gray-500
+mt-2
+">
+
+Generate and manage wildlife survey reports
+
+</p>
+
+
+</div>
+
+
+
+<button
+className="
+flex
+items-center
+gap-2
+bg-green-600
+text-white
+px-5
+py-3
+rounded-xl
+shadow
+hover:bg-green-700
+"
+>
+
+
+<FileText size={18}/>
+
+Generate Report
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+
+{/* SUMMARY CARDS */}
+
+
+
+<div className="
+grid
+grid-cols-1
+md:grid-cols-3
+gap-6
+">
+
+
+<Card
+
+title="Total Reports"
+
+value={reports.length}
+
+icon={<FileText/>}
+
+color="bg-green-600"
+
+/>
+
+
+<Card
+
+title="Ready Reports"
+
+value={
+reports.filter(
+r=>r.reportStatus==="READY"
+).length
 }
+
+icon={<CheckCircle/>}
+
+color="bg-blue-600"
+
+/>
+
+
+
+<Card
+
+title="PDF Reports"
+
+value={
+reports.filter(
+r=>r.reportType==="PDF"
+).length
+}
+
+icon={<Download/>}
+
+color="bg-purple-600"
+
+/>
+
+
+
+</div>
+
+
+
+
+
+
+
+{/* REPORT LIST */}
+
+
+
+<div className="
+space-y-5
+">
+
+
+
+<h2 className="
+text-2xl
+font-bold
+">
+
+Recent Reports
+
+</h2>
+
+
+
+{
+
+reports.map((report)=>(
+
+
+<div
+
+key={report.reportId}
+
+className="
+bg-white
+rounded-2xl
+shadow-sm
+border
+p-6
+flex
+justify-between
+items-center
+"
+
+>
+
+
+
+<div className="flex gap-5 items-center">
+
+
+<div
+className="
+p-4
+rounded-xl
+bg-green-100
+text-green-700
+"
+>
+
+<FileText/>
+
+</div>
+
+
+
+
+<div>
+
+
+<h3 className="
+text-xl
+font-bold
+">
+
+{report.reportTitle}
+
+</h3>
+
+
+
+<div className="
+flex
+gap-5
+text-sm
+text-gray-500
+mt-2
+">
+
+
+<span className="flex gap-1 items-center">
+
+<Calendar size={15}/>
+
+{
+new Date(report.generatedAt)
+.toLocaleDateString()
+}
+
+</span>
+
+
+
+
+<span className="flex gap-1 items-center">
+
+<User size={15}/>
+
+{report.generatedByName}
+
+</span>
+
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div className="flex items-center gap-4">
+
+
+<span
+className="
+px-4
+py-2
+rounded-full
+bg-green-100
+text-green-700
+font-semibold
+text-sm
+"
+>
+
+{report.reportStatus}
+
+</span>
+
+
+
+
+<button
+className="
+p-3
+rounded-xl
+bg-blue-100
+text-blue-700
+hover:bg-blue-200
+"
+>
+
+<Download size={18}/>
+
+</button>
+
+
+
+
+<button
+
+onClick={()=>removeReport(report.reportId)}
+
+className="
+p-3
+rounded-xl
+bg-red-100
+text-red-600
+hover:bg-red-200
+"
+
+>
+
+<Trash2 size={18}/>
+
+</button>
+
+
+</div>
+
+
+
+</div>
+
+
+))
+
+}
+
+
+
+</div>
+
+
+
+
+
+</div>
+
+);
+
+
+}
+
+
+
+
+function Card(
+{
+title,
+value,
+icon,
+color
+}:any
+){
+
+
+return (
+
+<div className="
+bg-white
+rounded-2xl
+shadow-sm
+border
+p-6
+flex
+items-center
+gap-5
+">
+
+
+<div
+className={`
+${color}
+text-white
+p-4
+rounded-xl
+`}
+>
+
+{icon}
+
+</div>
+
+
+
+<div>
+
+<p className="
+text-gray-500
+">
+
+{title}
+
+</p>
+
+
+<h2 className="
+text-3xl
+font-bold
+">
+
+{value}
+
+</h2>
+
+
+</div>
+
+
+</div>
+
+
+);
+
+}
+
+
+
+export default Reports;
