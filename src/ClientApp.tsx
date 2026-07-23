@@ -19,6 +19,7 @@ import NotFound from "@/pages/errors/NotFound";
 import ServerError from "@/pages/errors/ServerError";
 import { CrudPage } from "@/pages/CrudPage";
 import { modules } from "@/config/modules";
+import Analytics from "./pages/Analytics";
 
 export function ClientApp() {
   return (
@@ -42,6 +43,10 @@ export function ClientApp() {
                 <Route path="/upload-audio" element={<UploadAudio />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/report-exports" element={<ReportExports />} />
+                <Route 
+   path="/analytics" 
+   element={<Analytics/>}
+/>
                 {modules.map((m) => (
                   <Route
                     key={m.path}
