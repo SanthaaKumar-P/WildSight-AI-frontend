@@ -28,8 +28,21 @@ const roleExtras: Record<string, Item[]> = {
 };
 
 const reportItems: Item[] = [
-  { path: "/reports", title: "Reports", icon: "FileText" },
-  { path: "/report-exports", title: "Report Exports", icon: "Download" },
+  {
+    path: "/analytics",
+    title: "Analytics Dashboard",
+    icon: "BarChart3",
+  },
+  {
+    path: "/reports",
+    title: "Reports",
+    icon: "FileText",
+  },
+  {
+    path: "/report-exports",
+    title: "Report Exports",
+    icon: "Download",
+  },
 ];
 
 const bottomItems: Item[] = [
@@ -50,7 +63,10 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Prop
   const role = user?.role || "VOLUNTEER";
   const modItems = modulesForRole(role).map((m) => ({ path: m.path, title: m.title, icon: m.icon }));
   const extras = roleExtras[role] || [];
-  const showReports = role !== "VOLUNTEER";
+  const showReports =
+  role === "ADMIN" ||
+  role === "RESEARCHER" ||
+  role === "FOREST_OFFICER";
   const showSettings = role === "ADMIN";
   const filteredBottom = bottomItems.filter((b) => (b.path === "/settings" ? showSettings : true));
 

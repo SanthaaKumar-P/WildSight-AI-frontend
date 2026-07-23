@@ -1,68 +1,27 @@
-import axios from "axios";
-
 import {
     DashboardSummary,
     SpeciesDistribution,
     CategoryDistribution
 } from "../types/analytics";
 
+import { api } from "@/services/api";
 
-const API =
-"http://localhost:8080/api/analytics";
-
-
-
-const analyticsAxios = axios.create();
-
-
-
-analyticsAxios.interceptors.request.use(
-    (config)=>{
-
-
-        const token =
-            localStorage.getItem("token");
-
-
-        console.log("JWT TOKEN:", token);
-
-
-
-        if(token){
-
-            config.headers.Authorization =
-                `Bearer ${token}`;
-
-        }
-
-
-        return config;
-
-    }
-);
-
-
+const API = "/api/analytics";
 
 export const getDashboardSummary = () =>
-
-    analyticsAxios.get<DashboardSummary>(
+    api.get<DashboardSummary>(
         `${API}/dashboard`
     );
 
-
-
-
 export const getSpeciesDistribution = () =>
-
-    analyticsAxios.get<SpeciesDistribution[]>(
+    api.get<SpeciesDistribution[]>(
         `${API}/species-distribution`
     );
 
-
-
-
 export const getCategoryDistribution = () =>
-
-    analyticsAxios.get<CategoryDistribution[]>(
+    api.get<CategoryDistribution[]>(
         `${API}/category-distribution`
     );
+
+export const getConservationStatus = () =>
+    api.get("/api/analytics/conservation-status");
