@@ -20,7 +20,8 @@ import ServerError from "@/pages/errors/ServerError";
 import { CrudPage } from "@/pages/CrudPage";
 import { modules } from "@/config/modules";
 import Analytics from "./pages/Analytics";
-
+import PopulationIntelligence
+from "./pages/PopulationIntelligence";
 export function ClientApp() {
   return (
     <ThemeProvider>
@@ -43,9 +44,17 @@ export function ClientApp() {
                 <Route path="/upload-audio" element={<UploadAudio />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/report-exports" element={<ReportExports />} />
+
                 <Route 
    path="/analytics" 
    element={<Analytics/>}
+
+/><Route
+
+path="/population"
+
+element={<PopulationIntelligence/>}
+
 />
                 {modules.map((m) => (
                   <Route

@@ -34,6 +34,11 @@ const reportItems: Item[] = [
     icon: "BarChart3",
   },
   {
+    path: "/population",
+    title: "Population Intelligence",
+    icon: "LineChart",
+  },
+  {
     path: "/reports",
     title: "Reports",
     icon: "FileText",
