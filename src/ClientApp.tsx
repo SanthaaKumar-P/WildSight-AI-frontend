@@ -20,6 +20,7 @@ import ServerError from "@/pages/errors/ServerError";
 import { CrudPage } from "@/pages/CrudPage";
 import { modules } from "@/config/modules";
 import Analytics from "./pages/Analytics";
+import BiodiversityIntelligence from "./pages/BiodiversityIntelligence";
 import PopulationIntelligence
 from "./pages/PopulationIntelligence";
 export function ClientApp() {
@@ -55,6 +56,10 @@ path="/population"
 
 element={<PopulationIntelligence/>}
 
+/>
+<Route
+ path="/biodiversity-intelligence"
+ element={<BiodiversityIntelligence />}
 />
                 {modules.map((m) => (
                   <Route

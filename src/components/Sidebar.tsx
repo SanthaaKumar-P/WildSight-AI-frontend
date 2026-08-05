@@ -38,6 +38,11 @@ const reportItems: Item[] = [
     title: "Population Intelligence",
     icon: "LineChart",
   },
+   {
+    path: "/biodiversity-intelligence",
+    title: "Biodiversity Intelligence",
+    icon: "Leaf",
+  },
   {
     path: "/reports",
     title: "Reports",
