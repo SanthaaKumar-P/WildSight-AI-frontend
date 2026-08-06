@@ -16,7 +16,7 @@ export const getBiodiversityDashboard = async () => {
 export const getSpeciesDiversity = async () => {
 
     const response = await api.get(
-        "/api/biodiversity-scores/species-analysis"
+        "/api/biodiversity-scores/species-chart"
     );
 
     return response.data;

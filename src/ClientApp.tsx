@@ -23,6 +23,8 @@ import Analytics from "./pages/Analytics";
 import BiodiversityIntelligence from "./pages/BiodiversityIntelligence";
 import PopulationIntelligence
 from "./pages/PopulationIntelligence";
+import HabitatIntelligence from "./pages/HabitatIntelligence";
+import ConservationIntelligence from "./pages/ConservationIntelligence";
 export function ClientApp() {
   return (
     <ThemeProvider>
@@ -60,6 +62,14 @@ element={<PopulationIntelligence/>}
 <Route
  path="/biodiversity-intelligence"
  element={<BiodiversityIntelligence />}
+/>
+<Route
+    path="/habitat-intelligence"
+    element={<HabitatIntelligence/>}
+/>
+<Route
+    path="/conservation-intelligence"
+    element={<ConservationIntelligence/>}
 />
                 {modules.map((m) => (
                   <Route

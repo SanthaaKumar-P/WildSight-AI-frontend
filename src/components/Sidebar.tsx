@@ -44,6 +44,16 @@ const reportItems: Item[] = [
     icon: "Leaf",
   },
   {
+    path: "/habitat-intelligence",
+    title: "Habitat Intelligence",
+    icon: "Trees",
+},
+{
+    path: "/conservation-intelligence",
+    title: "Conservation Intelligence",
+    icon: "ShieldCheck",
+},
+  {
     path: "/reports",
     title: "Reports",
     icon: "FileText",

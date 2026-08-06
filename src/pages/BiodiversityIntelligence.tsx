@@ -191,7 +191,7 @@ function BiodiversityIntelligence(){
             grid-cols-1
             sm:grid-cols-2
             xl:grid-cols-5
-            gap-6
+            gap-8
             "
             >
 
@@ -209,7 +209,7 @@ function BiodiversityIntelligence(){
                         <Leaf size={25}/>
                     }
 
-                    color="bg-green-600"
+                    color="bg-gradient-to-r from-green-500 to-emerald-600"
 
                 />
 
@@ -229,7 +229,7 @@ function BiodiversityIntelligence(){
                         <PawPrint size={25}/>
                     }
 
-                    color="bg-orange-500"
+                    color="bg-gradient-to-r from-orange-500 to-red-500"
 
                 />
 
@@ -249,7 +249,7 @@ function BiodiversityIntelligence(){
                         <Activity size={25}/>
                     }
 
-                    color="bg-blue-600"
+                    color="bg-gradient-to-r from-blue-500 to-indigo-600"
 
                 />
 
@@ -269,7 +269,7 @@ function BiodiversityIntelligence(){
                         <Trees size={25}/>
                     }
 
-                    color="bg-emerald-600"
+                    color="bg-gradient-to-r from-cyan-500 to-teal-600"
 
                 />
 
@@ -289,7 +289,7 @@ function BiodiversityIntelligence(){
                         <ShieldCheck size={25}/>
                     }
 
-                    color="bg-purple-600"
+                    color="bg-gradient-to-r from-violet-500 to-purple-700"
 
                 />
 
@@ -332,7 +332,7 @@ function BiodiversityIntelligence(){
                     <HabitatHealthCard
 
                         averageQuality={
-                            habitatData.averageHabitatQuality
+                            habitatData.averageHabitatHealth
                         }
 
                         healthyCount={
@@ -372,7 +372,7 @@ function BiodiversityIntelligence(){
                 <EcosystemHealthGauge
 
                     ecosystemHealth={
-                        ecosystemData.ecosystemHealthScore
+                        ecosystemData.averageEcosystemHealth
                     }
 
                     overallScore={
@@ -380,7 +380,7 @@ function BiodiversityIntelligence(){
                     }
 
                     status={
-                        ecosystemData.conservationStatus
+                        ecosystemData.monitoringStatus
                     }
 
                 />
@@ -416,7 +416,7 @@ function BiodiversityIntelligence(){
 
 
                 status={
-                    ecosystemData?.conservationStatus ??
+                    ecosystemData?.monitoringStatus ??
                     "Unknown"
                 }
 
