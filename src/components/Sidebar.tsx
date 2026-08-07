@@ -7,13 +7,14 @@ import {
   ImagePlus, Mic, AudioLines, AlertTriangle, BarChart3, LineChart, Gauge,
   Sparkles, FileText, Download, Bell, User, Settings as SettingsIcon,
   ChevronLeft, ChevronRight, X, Feather,
+  HeartPulse,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const iconMap: Record<string, any> = {
   LayoutDashboard, Leaf, FolderTree, ClipboardList, Trees, MapPin, Cpu, Eye,
   ImagePlus, Mic, AudioLines, AlertTriangle, BarChart3, LineChart, Gauge,
-  Sparkles, FileText, Download, Bell, User, SettingsIcon,
+  Sparkles, FileText, Download, Bell, User, SettingsIcon,HeartPulse,
 };
 
 interface Item { path: string; title: string; icon: string; }
@@ -57,6 +58,11 @@ const reportItems: Item[] = [
  path:"/survey-intelligence",
  title:"Survey Intelligence",
  icon:"ClipboardList"
+},
+{
+    path:"/health-score",
+    title:"Wildlife Health Score",
+    icon:"HeartPulse",
 },
   {
     path: "/reports",
