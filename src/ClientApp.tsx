@@ -25,6 +25,7 @@ import PopulationIntelligence
 from "./pages/PopulationIntelligence";
 import HabitatIntelligence from "./pages/HabitatIntelligence";
 import ConservationIntelligence from "./pages/ConservationIntelligence";
+import SurveyIntelligence from "./pages/SurveyIntelligence";
 export function ClientApp() {
   return (
     <ThemeProvider>
@@ -70,6 +71,10 @@ element={<PopulationIntelligence/>}
 <Route
     path="/conservation-intelligence"
     element={<ConservationIntelligence/>}
+/>
+<Route
+ path="/survey-intelligence"
+ element={<SurveyIntelligence/>}
 />
                 {modules.map((m) => (
                   <Route

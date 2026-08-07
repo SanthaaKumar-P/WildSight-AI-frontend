@@ -53,6 +53,11 @@ const reportItems: Item[] = [
     title: "Conservation Intelligence",
     icon: "ShieldCheck",
 },
+{
+ path:"/survey-intelligence",
+ title:"Survey Intelligence",
+ icon:"ClipboardList"
+},
   {
     path: "/reports",
     title: "Reports",
