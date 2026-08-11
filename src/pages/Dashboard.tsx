@@ -13,7 +13,7 @@ import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, Line, LineChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
-
+import WildlifeMap from "@/components/wildlife/WildlifeMap";
 async function safeCount(url: string): Promise<number> {
   try {
     const { data } = await api.get(url);
@@ -55,19 +55,82 @@ export default function Dashboard() {
   const role = user?.role || "VOLUNTEER";
   const [counts, setCounts] = useState({ species: 0, surveys: 0, observations: 0, devices: 0, endangered: 0, locations: 0 });
 
+  const [wildlifeLocations,setWildlifeLocations] = useState<any[]>([]);
+
   useEffect(() => {
-    (async () => {
-      const [species, surveys, observations, devices, endangered, locations] = await Promise.all([
-        safeCount("/api/species"),
-        safeCount("/api/surveys"),
-        safeCount("/api/observations"),
-        safeCount("/api/monitoring-devices"),
-        safeCount("/api/endangered-species"),
-        safeCount("/api/monitoring-locations"),
-      ]);
-      setCounts({ species, surveys, observations, devices, endangered, locations });
-    })();
-  }, []);
+
+(async()=>{
+
+
+const [
+species,
+surveys,
+observations,
+devices,
+endangered,
+locations
+]=await Promise.all([
+
+safeCount("/api/species"),
+
+safeCount("/api/surveys"),
+
+safeCount("/api/observations"),
+
+safeCount("/api/monitoring-devices"),
+
+safeCount("/api/endangered-species"),
+
+safeCount("/api/monitoring-locations")
+
+]);
+
+
+
+setCounts({
+
+species,
+surveys,
+observations,
+devices,
+endangered,
+locations
+
+});
+
+
+
+// LOAD WILDLIFE MAP DATA
+
+try{
+
+
+const response =
+await api.get("/api/dashboard/map");
+
+
+setWildlifeLocations(
+response.data
+);
+
+
+}
+
+catch(error){
+
+console.log(
+"Map loading failed",
+error
+);
+
+}
+
+
+
+})();
+
+
+},[]);
 
   const greeting = (() => {
     const h = new Date().getHours();
@@ -217,27 +280,40 @@ export default function Dashboard() {
           </div>
         </motion.div>
 
-        {/* Interactive Wildlife Map Placeholder */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative overflow-hidden rounded-2xl border border-border/60 shadow-soft">
-          <div className="absolute inset-0 gradient-hero opacity-90" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.3),transparent_40%)]" />
-          {[...Array(8)].map((_, i) => (
-            <motion.div key={i} className="absolute h-2 w-2 rounded-full bg-white"
-              style={{ left: `${20 + (i * 11) % 60}%`, top: `${20 + (i * 13) % 60}%` }}
-              animate={{ scale: [1, 1.8, 1], opacity: [0.9, 0.3, 0.9] }}
-              transition={{ duration: 2 + i * 0.3, repeat: Infinity }} />
-          ))}
-          <div className="relative flex h-full min-h-[16rem] flex-col justify-end p-5 text-white">
-            <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/20 px-2.5 py-1 text-[10px] font-semibold backdrop-blur">
-              <MapPin className="h-3 w-3" /> Live map • coming soon
-            </div>
-            <h3 className="mt-2 font-display text-lg font-bold">Wildlife map</h3>
-            <p className="text-xs text-white/80">Interactive geospatial view of monitoring sites and species activity.</p>
-          </div>
-        </motion.div>
-      </div>
+       {/* REAL WILDLIFE MAP */}
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+<motion.div
+
+initial={{opacity:0}}
+
+animate={{opacity:1}}
+
+className="
+rounded-2xl
+overflow-hidden
+border
+border-border/60
+shadow-soft
+lg:col-span-1
+"
+
+>
+
+
+<div className="h-[400px]">
+
+<WildlifeMap
+
+locations={
+wildlifeLocations
+}
+
+/>
+
+</div>
+
+
+</motion.div>
         {/* Weather widget placeholder */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass flex items-center gap-4 rounded-2xl p-5 shadow-soft">
           <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><CloudSun className="h-7 w-7" /></div>
