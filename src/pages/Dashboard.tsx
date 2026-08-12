@@ -14,6 +14,7 @@ import {
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 import WildlifeMap from "@/components/wildlife/WildlifeMap";
+import AdminAnalytics from "@/components/dashboard/AdminAnalytics";
 async function safeCount(url: string): Promise<number> {
   try {
     const { data } = await api.get(url);
@@ -184,6 +185,12 @@ error
           </>
         }
       />
+
+      {
+role === "ADMIN" && (
+    <AdminAnalytics />
+)
+}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {roleKpis().map((k, i) => <StatCard key={i} {...k} delay={i * 0.05} />)}
