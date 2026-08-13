@@ -1,37 +1,104 @@
 import { api } from "./api";
 import { ReportExport } from "../types/reportExport";
 
-export const getAllReportExports = async () => {
-  const { data } = await api.get<ReportExport[]>("/api/report-exports");
-  return data;
+
+// ============================================================
+// GET ALL REPORT EXPORTS
+// ============================================================
+
+export const getAllReportExports = async (): Promise<ReportExport[]> => {
+
+  const response = await api.get<ReportExport[]>(
+    "/api/report-exports"
+  );
+
+  return response.data;
 };
 
-export const getReportExport = async (id: number) => {
-  const { data } = await api.get<ReportExport>(`/api/report-exports/${id}`);
-  return data;
+
+// ============================================================
+// GET EXPORT BY ID
+// ============================================================
+
+export const getReportExport = async (
+  id: number
+): Promise<ReportExport> => {
+
+  const response = await api.get<ReportExport>(
+    `/api/report-exports/${id}`
+  );
+
+  return response.data;
 };
 
-export const createReportExport = async (payload: any) => {
-  const { data } = await api.post("/api/report-exports", payload);
-  return data;
+
+// ============================================================
+// CREATE REPORT EXPORT
+// ============================================================
+
+export const createReportExport = async (
+  payload: {
+    reportId: number;
+    exportFormat: string;
+    exportPath?: string;
+  }
+): Promise<ReportExport> => {
+
+  const response = await api.post<ReportExport>(
+    "/api/report-exports",
+    payload
+  );
+
+  return response.data;
 };
+
+
+// ============================================================
+// UPDATE EXPORT
+// ============================================================
 
 export const updateReportExport = async (
   id: number,
   payload: any
-) => {
-  const { data } = await api.put(
+): Promise<ReportExport> => {
+
+  const response = await api.put<ReportExport>(
     `/api/report-exports/${id}`,
     payload
   );
 
-  return data;
+  return response.data;
 };
 
-export const deleteReportExport = async (id: number) => {
-  const { data } = await api.delete(
+
+// ============================================================
+// DELETE EXPORT
+// ============================================================
+
+export const deleteReportExport = async (
+  id: number
+): Promise<void> => {
+
+  await api.delete(
     `/api/report-exports/${id}`
   );
+};
 
-  return data;
+
+// ============================================================
+// DOWNLOAD EXPORT
+// ============================================================
+
+export const downloadReportExport = async (
+  id: number
+): Promise<Blob> => {
+
+  const response = await api.get(
+    `/api/report-exports/${id}/download`,
+    {
+      responseType: "blob",
+    }
+  );
+
+  return response.data;
 };

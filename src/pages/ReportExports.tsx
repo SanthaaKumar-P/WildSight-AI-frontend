@@ -1,10 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { getAllReportExports } from "../services/reportExportService";
-
-import ExportCard from "../components/reportExport/ExportCard";
-import AnalyticsCard from "../components/analytics/AnalyticsCard";
-
 import {
   Download,
   FileText,
@@ -13,20 +8,66 @@ import {
   Search,
 } from "lucide-react";
 
+import {
+  getAllReportExports,
+} from "../services/reportExportService";
+
+import ExportCard from "../components/reportExport/ExportCard";
+import AnalyticsCard from "../components/analytics/AnalyticsCard";
+
+import { ReportExport } from "../types/reportExport";
+
+
 export default function ReportExports() {
-  const [exports, setExports] = useState<any[]>([]);
+
+  const [exports, setExports] = useState<ReportExport[]>([]);
+
   const [search, setSearch] = useState("");
+
   const [format, setFormat] = useState("ALL");
 
+  const [loading, setLoading] = useState(true);
+
+
+  // ============================================================
+  // LOAD EXPORTS
+  // ============================================================
+
+  const loadExports = async () => {
+
+    try {
+
+      setLoading(true);
+
+      const data = await getAllReportExports();
+
+      setExports(data);
+
+    } catch (error) {
+
+      console.error(
+        "Failed to load report exports:",
+        error
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  };
+
+
   useEffect(() => {
+
     loadExports();
+
   }, []);
 
-  const loadExports = () => {
-    getAllReportExports()
-      .then(setExports)
-      .catch((err) => console.error(err));
-  };
+
+  // ============================================================
+  // STATISTICS
+  // ============================================================
 
   const totalExports = exports.length;
 
@@ -42,44 +83,84 @@ export default function ReportExports() {
     (e) => e.exportFormat === "CSV"
   ).length;
 
+
+  // ============================================================
+  // FILTER
+  // ============================================================
+
   const filteredExports = useMemo(() => {
+
     return exports.filter((exp) => {
-      const searchMatch = exp.reportTitle
-        .toLowerCase()
-        .includes(search.toLowerCase());
+
+      const title =
+        exp.reportTitle?.toLowerCase() || "";
+
+      const searchMatch =
+        title.includes(search.toLowerCase());
 
       const formatMatch =
-        format === "ALL" || exp.exportFormat === format;
+        format === "ALL" ||
+        exp.exportFormat === format;
 
       return searchMatch && formatMatch;
+
     });
+
   }, [exports, search, format]);
 
+
   return (
+
     <div className="p-8 space-y-8 bg-[#f7faf7] min-h-screen">
 
-      {/* HEADER */}
+
+      {/* ======================================================
+          HEADER
+      ====================================================== */}
 
       <div className="flex justify-between items-center">
 
         <div>
-          <h1 className="text-4xl font-bold">
+
+          <h1 className="text-4xl font-bold text-gray-900">
             Report Exports 📥
           </h1>
 
           <p className="text-gray-500 mt-2">
             Export generated wildlife reports
           </p>
+
         </div>
 
-        <button className="bg-green-600 hover:bg-green-700 text-white rounded-xl px-5 py-3 flex items-center gap-2 shadow">
+
+        <button
+          onClick={loadExports}
+          className="
+            bg-green-600
+            hover:bg-green-700
+            text-white
+            rounded-xl
+            px-5
+            py-3
+            flex
+            items-center
+            gap-2
+            shadow
+          "
+        >
+
           <Download size={18} />
-          Export Center
+
+          Refresh Exports
+
         </button>
 
       </div>
 
-      {/* KPI CARDS */}
+
+      {/* ======================================================
+          KPI CARDS
+      ====================================================== */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 
@@ -113,7 +194,10 @@ export default function ReportExports() {
 
       </div>
 
-      {/* SEARCH + FILTER */}
+
+      {/* ======================================================
+          SEARCH + FILTER
+      ====================================================== */}
 
       <div className="flex flex-col md:flex-row gap-4 justify-between">
 
@@ -121,57 +205,123 @@ export default function ReportExports() {
 
           <Search
             size={18}
-            className="absolute left-3 top-3 text-gray-400"
+            className="
+              absolute
+              left-3
+              top-3
+              text-gray-400
+            "
           />
 
           <input
             type="text"
             placeholder="Search report..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border pl-10 pr-4 py-3 shadow-sm"
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+            className="
+              w-full
+              rounded-xl
+              border
+              pl-10
+              pr-4
+              py-3
+              shadow-sm
+            "
           />
 
         </div>
 
+
         <select
           value={format}
-          onChange={(e) => setFormat(e.target.value)}
-          className="rounded-xl border px-4 py-3 shadow-sm"
+          onChange={(e) =>
+            setFormat(e.target.value)
+          }
+          className="
+            rounded-xl
+            border
+            px-4
+            py-3
+            shadow-sm
+          "
         >
-          <option value="ALL">All Formats</option>
-          <option value="PDF">PDF</option>
-          <option value="EXCEL">EXCEL</option>
-          <option value="CSV">CSV</option>
+
+          <option value="ALL">
+            All Formats
+          </option>
+
+          <option value="PDF">
+            PDF
+          </option>
+
+          <option value="EXCEL">
+            EXCEL
+          </option>
+
+          <option value="CSV">
+            CSV
+          </option>
+
         </select>
 
       </div>
 
-      {/* EXPORT LIST */}
+
+      {/* ======================================================
+          EXPORT LIST
+      ====================================================== */}
 
       <div className="grid gap-5">
 
-        {filteredExports.length > 0 ? (
+        {loading ? (
+
+          <div className="
+            bg-white
+            rounded-2xl
+            shadow
+            p-12
+            text-center
+          ">
+
+            <p className="text-gray-500">
+              Loading report exports...
+            </p>
+
+          </div>
+
+        ) : filteredExports.length > 0 ? (
 
           filteredExports.map((exp) => (
 
             <ExportCard
               key={exp.exportId}
+              exportId={exp.exportId}
               title={exp.reportTitle}
               format={exp.exportFormat}
               exportedAt={exp.exportedAt}
-              path={exp.exportPath}
             />
 
           ))
 
         ) : (
 
-          <div className="bg-white rounded-2xl shadow p-12 text-center">
+          <div className="
+            bg-white
+            rounded-2xl
+            shadow
+            p-12
+            text-center
+          ">
 
             <Download
               size={50}
-              className="mx-auto text-gray-400 mb-4"
+              className="
+                mx-auto
+                text-gray-400
+                mb-4
+              "
             />
 
             <h2 className="text-2xl font-bold">
