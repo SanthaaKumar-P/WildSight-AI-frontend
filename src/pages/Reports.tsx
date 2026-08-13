@@ -22,6 +22,10 @@ import {
     generateReport
 } from "../services/reportService";
 
+import {
+    getAllReportExports
+} from "../services/reportExportService";
+
 import { getAllSurveys } from "../services/SurveyService";
 
 import { useAuth } from "@/contexts/AuthContext";

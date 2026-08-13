@@ -1,4 +1,5 @@
 import { api } from "./api";
+
 import { ReportExport } from "../types/reportExport";
 
 
@@ -6,99 +7,109 @@ import { ReportExport } from "../types/reportExport";
 // GET ALL REPORT EXPORTS
 // ============================================================
 
-export const getAllReportExports = async (): Promise<ReportExport[]> => {
+export const getAllReportExports =
+  async (): Promise<ReportExport[]> => {
 
-  const response = await api.get<ReportExport[]>(
-    "/api/report-exports"
-  );
+    const response =
+      await api.get<ReportExport[]>(
+        "/api/report-exports"
+      );
 
-  return response.data;
-};
+    return response.data;
+  };
 
 
 // ============================================================
-// GET EXPORT BY ID
+// GET REPORT EXPORT BY ID
 // ============================================================
 
-export const getReportExport = async (
-  id: number
-): Promise<ReportExport> => {
+export const getReportExport =
+  async (
+    id: number
+  ): Promise<ReportExport> => {
 
-  const response = await api.get<ReportExport>(
-    `/api/report-exports/${id}`
-  );
+    const response =
+      await api.get<ReportExport>(
+        `/api/report-exports/${id}`
+      );
 
-  return response.data;
-};
+    return response.data;
+  };
 
 
 // ============================================================
 // CREATE REPORT EXPORT
 // ============================================================
 
-export const createReportExport = async (
-  payload: {
-    reportId: number;
-    exportFormat: string;
-    exportPath?: string;
-  }
-): Promise<ReportExport> => {
+export const createReportExport =
+  async (
+    payload: any
+  ) => {
 
-  const response = await api.post<ReportExport>(
-    "/api/report-exports",
-    payload
-  );
+    const response =
+      await api.post(
+        "/api/report-exports",
+        payload
+      );
 
-  return response.data;
-};
+    return response.data;
+  };
 
 
 // ============================================================
-// UPDATE EXPORT
+// UPDATE REPORT EXPORT
 // ============================================================
 
-export const updateReportExport = async (
-  id: number,
-  payload: any
-): Promise<ReportExport> => {
+export const updateReportExport =
+  async (
+    id: number,
+    payload: any
+  ) => {
 
-  const response = await api.put<ReportExport>(
-    `/api/report-exports/${id}`,
-    payload
-  );
+    const response =
+      await api.put(
+        `/api/report-exports/${id}`,
+        payload
+      );
 
-  return response.data;
-};
-
-
-// ============================================================
-// DELETE EXPORT
-// ============================================================
-
-export const deleteReportExport = async (
-  id: number
-): Promise<void> => {
-
-  await api.delete(
-    `/api/report-exports/${id}`
-  );
-};
+    return response.data;
+  };
 
 
 // ============================================================
-// DOWNLOAD EXPORT
+// DELETE REPORT EXPORT
 // ============================================================
 
-export const downloadReportExport = async (
-  id: number
-): Promise<Blob> => {
+export const deleteReportExport =
+  async (
+    id: number
+  ) => {
 
-  const response = await api.get(
-    `/api/report-exports/${id}/download`,
-    {
-      responseType: "blob",
-    }
-  );
+    const response =
+      await api.delete(
+        `/api/report-exports/${id}`
+      );
 
-  return response.data;
-};
+    return response.data;
+  };
+
+
+// ============================================================
+// DOWNLOAD REPORT EXPORT
+// ============================================================
+
+export const downloadReportExport =
+  async (
+    id: number
+  ) => {
+
+    const response =
+      await api.get(
+        `/api/report-exports/${id}/download`,
+        {
+          responseType: "blob",
+        }
+      );
+
+    return response;
+  };

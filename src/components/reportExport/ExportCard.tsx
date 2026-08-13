@@ -1,40 +1,92 @@
-import { Download, FileText } from "lucide-react";
+import { useState } from "react";
+import { Download, FileText, Loader2 } from "lucide-react";
 import { downloadReportExport } from "../../services/reportExportService";
 
 interface Props {
-  exportId: number;
   title: string;
   format: string;
   exportedAt: string;
+  exportId: number;
 }
 
 export default function ExportCard({
-  exportId,
   title,
   format,
   exportedAt,
+  exportId,
 }: Props) {
+
+  const [downloading, setDownloading] = useState(false);
 
   const handleDownload = async () => {
 
     try {
 
-      const blob = await downloadReportExport(exportId);
+      setDownloading(true);
 
-      const url = window.URL.createObjectURL(blob);
+      const response =
+        await downloadReportExport(exportId);
 
-      const link = document.createElement("a");
+      // ============================================================
+      // GET CONTENT TYPE
+      // ============================================================
+
+      const contentType = String(
+        response.headers?.["content-type"] ||
+        "application/pdf"
+      );
+
+      // ============================================================
+      // CREATE BLOB
+      // ============================================================
+
+      const blob = new Blob(
+        [response.data],
+        {
+          type: contentType,
+        }
+      );
+
+      // ============================================================
+      // CREATE DOWNLOAD URL
+      // ============================================================
+
+      const url =
+        window.URL.createObjectURL(blob);
+
+      // ============================================================
+      // CREATE TEMPORARY DOWNLOAD LINK
+      // ============================================================
+
+      const link =
+        document.createElement("a");
 
       link.href = url;
 
-      link.download = `${title.replace(
-        /[^a-zA-Z0-9]/g,
-        "_"
-      )}.${format.toLowerCase()}`;
+      // ============================================================
+      // FILE NAME
+      // ============================================================
+
+      const extension =
+        format === "EXCEL"
+          ? "xlsx"
+          : format === "CSV"
+          ? "csv"
+          : "pdf";
+
+      link.download =
+        `${title.replace(
+          /[^a-zA-Z0-9-_ ]/g,
+          ""
+        )}.${extension}`;
 
       document.body.appendChild(link);
 
       link.click();
+
+      // ============================================================
+      // CLEANUP
+      // ============================================================
 
       link.remove();
 
@@ -43,65 +95,124 @@ export default function ExportCard({
     } catch (error) {
 
       console.error(
-        "Failed to download report:",
+        "Report download failed:",
         error
       );
 
-      alert("Failed to download report");
+      alert(
+        "Unable to download the report. Please login again and try."
+      );
+
+    } finally {
+
+      setDownloading(false);
 
     }
   };
 
 
   return (
-    <div className="bg-white rounded-2xl shadow border p-6 flex justify-between items-center">
+
+    <div className="
+      bg-white
+      rounded-2xl
+      shadow
+      border
+      p-6
+      flex
+      justify-between
+      items-center
+    ">
+
+      {/* ========================================================
+          REPORT INFORMATION
+      ======================================================== */}
 
       <div>
 
         <div className="flex items-center gap-3">
 
-          <div className="bg-red-100 text-red-600 p-3 rounded-xl">
+          <div className="
+            p-3
+            rounded-xl
+            bg-green-100
+            text-green-700
+          ">
+
             <FileText size={22} />
-          </div>
-
-          <div>
-
-            <h2 className="font-bold text-lg">
-              {title}
-            </h2>
-
-            <p className="text-gray-500">
-              Format : {format}
-            </p>
-
-            <p className="text-gray-400 text-sm">
-              {new Date(exportedAt).toLocaleDateString()}
-            </p>
 
           </div>
+
+          <h2 className="font-bold text-lg">
+
+            {title}
+
+          </h2>
 
         </div>
+
+
+        <p className="
+          text-gray-500
+          mt-2
+        ">
+
+          Format : {format}
+
+        </p>
+
+
+        <p className="
+          text-gray-400
+          text-sm
+          mt-1
+        ">
+
+          {new Date(
+            exportedAt
+          ).toLocaleDateString()}
+
+        </p>
 
       </div>
 
 
+      {/* ========================================================
+          DOWNLOAD BUTTON
+      ======================================================== */}
+
       <button
         onClick={handleDownload}
+        disabled={downloading}
         className="
           bg-green-600
           text-white
           rounded-xl
           p-3
           hover:bg-green-700
+          disabled:opacity-60
+          disabled:cursor-not-allowed
           transition
         "
         title="Download report"
       >
 
-        <Download size={22} />
+        {downloading ? (
+
+          <Loader2
+            size={22}
+            className="animate-spin"
+          />
+
+        ) : (
+
+          <Download size={22} />
+
+        )}
 
       </button>
 
     </div>
+
   );
 }
