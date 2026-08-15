@@ -1,17 +1,10 @@
-import axios from "axios";
+import { api } from "@/services/api";
+import type { WildlifeLocation } from "@/types/wildlife";
 
+export const getWildlifeLocations = async (): Promise<WildlifeLocation[]> => {
+  const response = await api.get<WildlifeLocation[]>(
+    "/api/dashboard/map"
+  );
 
-const API =
-"http://localhost:8080/api/dashboard";
-
-
-export const getWildlifeLocations = async () => {
-
-    const response =
-        await axios.get(
-            `${API}/map`
-        );
-
-    return response.data;
-
+  return response.data;
 };

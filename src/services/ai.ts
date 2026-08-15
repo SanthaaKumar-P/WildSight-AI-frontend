@@ -40,7 +40,7 @@ interface RawDetection {
 
   phylum?: string;
 
-  class?: string;
+  className?: string;
 
   order?: string;
 
@@ -111,7 +111,7 @@ function normalizeDetections(
     phylum:item.phylum,
 
 
-    class:item.class,
+    className:item.className,
 
 
     order:item.order,

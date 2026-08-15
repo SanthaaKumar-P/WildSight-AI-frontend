@@ -96,7 +96,7 @@ export default function UploadAudio() {
       `Detected: ${r.species}`,
       {
         description:
-          `${Math.round(r.confidence * 100)}% confidence`
+          `${Math.round(r.confidence)}% confidence`
       }
     );
 
